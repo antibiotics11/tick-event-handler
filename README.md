@@ -1,5 +1,5 @@
 # tick-event-handler
-A utility class for handling tick events in PHP applications.
+A PHP library for tick event handling.
 
 ```php
 use antibiotics11\TickEventHandler\TickEvent;
