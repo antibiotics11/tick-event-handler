@@ -7,10 +7,11 @@ use function unregister_tick_function;
 use const PHP_INT_MAX;
 
 class TickEventHandler {
-
-  private static self $handler;
+  protected static ?self $handler = null;
 
   /**
+   * Get the TickEventHandler instance.
+   *
    * @return TickEventHandler
    */
   public static function getHandler(): self {
@@ -21,22 +22,22 @@ class TickEventHandler {
   /**
    * @var SplObjectStorage<TickEvent>
    */
-  private SplObjectStorage $tickEvents;
+  protected SplObjectStorage $tickEvents;
 
   /**
-   * @var int Current tick count
+   * @var int Current tick count.
    */
-  private int $ticks = 0;
+  protected int $ticks = 0;
 
   /**
-   * @var bool Whether a tick event is currently running
+   * @var bool Whether a tick event is currently running.
    */
-  private bool $tickEventRunning = false;
+  protected bool $tickEventRunning = false;
 
   /**
-   * @var bool Whether the tick handler is registered
+   * @var bool Whether the tick handler is registered.
    */
-  private bool $handlerRegistered = false;
+  protected bool $handlerRegistered = false;
 
   /**
    * Handle tick events.
@@ -45,14 +46,14 @@ class TickEventHandler {
    */
   public function handle(): void {
 
-    // If a tick event is currently running, return to avoid further processing.
     if ($this->tickEventRunning) {
       return;
     }
+
     $this->ticks++;
 
     foreach ($this->tickEvents as $tickEvent) {
-      if ($this->ticks % $tickEvent->getTick() == 0) {
+      if ($this->ticks % $tickEvent->getTick() === 0) {
         $this->tickEventRunning = true;
         $tickEvent->run();
         $this->tickEventRunning = false;
@@ -64,40 +65,90 @@ class TickEventHandler {
   }
 
   /**
+   * Check if a TickEvent already exists.
+   *
+   * @param TickEvent $tickEvent
+   * @return bool True if the TickEvent exists, otherwise false.
+   */
+  public function hasTickEvent(TickEvent $tickEvent): bool {
+    return $this->tickEvents->contains($tickEvent);
+  }
+
+  /**
    * Add a tick event.
    *
    * @param TickEvent $tickEvent
-   * @return void
+   * @return bool True if the tick event was added successfully, otherwise false.
    */
-  public function addTickEvent(TickEvent $tickEvent): void {
+  public function addTickEvent(TickEvent $tickEvent): bool {
 
     $this->tickEvents ??= new SplObjectStorage();
+
+    if ($this->hasTickEvent($tickEvent)) {
+      return false;
+    }
+
     $this->tickEvents->attach($tickEvent);
 
     if (!$this->handlerRegistered) {
-      register_tick_function([ $this, "handle" ]);
-      $this->handlerRegistered = true;
+      if (!$this->registerTickFunction()) {
+        return false;
+      }
     }
+
+    return true;
 
   }
 
   /**
-   * Clear all tick events.
+   * Remove a tick event.
+   *
+   * @param TickEvent $tickEvent
+   * @return bool True if the tick event was removed successfully, otherwise false.
+   */
+  public function removeTickEvent(TickEvent $tickEvent): bool {
+
+    if (!$this->hasTickEvent($tickEvent) || $tickEvent->isStarted()) {
+      return false;
+    }
+
+    $this->tickEvents->detach($tickEvent);
+
+    if ($this->tickEvents->count() === 0) {
+      $this->unregisterTickFunction();
+    }
+
+    return true;
+
+  }
+
+  /**
+   * Remove all tick events.
    *
    * @return void
    */
-  public function clearTickEvents(): void {
+  public function removeAllTickEvents(): void {
 
-    $this->tickEvents->removeAll(new SplObjectStorage());
+    $this->tickEvents->removeAll($this->tickEvents);
 
     $this->ticks = 0;
     $this->tickEventRunning = false;
 
-    if ($this->handlerRegistered) {
-      unregister_tick_function([ $this, "handle" ]);
-      $this->handlerRegistered = false;
-    }
+    $this->handlerRegistered and $this->unregisterTickFunction();
 
+  }
+
+  protected function registerTickFunction(): bool {
+    if (register_tick_function([ $this, "handle" ])) {
+      $this->handlerRegistered = true;
+      return true;
+    }
+    return false;
+  }
+
+  protected function unregisterTickFunction(): void {
+    unregister_tick_function([ $this, "handle" ]);
+    $this->handlerRegistered = false;
   }
 
   private function __construct() {}
