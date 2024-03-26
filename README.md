@@ -29,3 +29,9 @@ while (true) {
 ## Requirements
 
 - PHP >= 8.1
+
+## Installation
+
+```shell
+composer require antibiotics11/tick-event-handler
+```
