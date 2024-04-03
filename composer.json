@@ -1,6 +1,6 @@
 {
     "name": "antibiotics11/tick-event-handler",
-    "description": "A utility class for handling tick events in PHP applications.",
+    "description": "A PHP library for tick event handling.",
     "type": "library",
     "license": "MIT",
     "autoload": {
