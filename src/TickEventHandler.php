@@ -82,8 +82,6 @@ class TickEventHandler {
    */
   public function addTickEvent(TickEvent $tickEvent): bool {
 
-    $this->tickEvents ??= new SplObjectStorage();
-
     if ($this->hasTickEvent($tickEvent)) {
       return false;
     }
@@ -151,7 +149,9 @@ class TickEventHandler {
     $this->handlerRegistered = false;
   }
 
-  private function __construct() {}
-  private function __clone() {}
+  private function __construct() {
+    $this->tickEvents = new SplObjectStorage();
+  }
+  private function __clone(): void {}
 
 }
