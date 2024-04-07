@@ -1,5 +1,5 @@
-# tick-event-manager
-A PHP library for tick event handling.
+# tick-manager
+A PHP library for tick handling.
 
 ```php
 use antibiotics11\TickManager\{TickHandler, TickManager};
