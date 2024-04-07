@@ -8,6 +8,7 @@ declare(ticks = 1);
 
 $start = time();
 
+// Registering a custom handler to run every 1 tick.
 TickManager::getManager()->addHandler(1, new TickHandler(function (&$start): void {
 
   if (time() - $start >= 10) {
