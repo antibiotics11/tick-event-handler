@@ -1,20 +1,24 @@
 {
-    "name": "antibiotics11/tick-event-handler",
-    "description": "A PHP library for tick event handling.",
+    "name": "antibiotics11/tick-manager",
+    "description": "A PHP library for tick handling.",
     "type": "library",
+    "homepage": "https://github.com/antibiotics11/tick-manager",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "antibiotics11\\TickEventHandler\\": "src/"
+            "antibiotics11\\TickManager\\": "src/"
         }
     },
     "authors": [
         {
-            "name": "ANTIBIOTICS",
+            "name": "antibiotics11",
             "email": "abx@abx.pe.kr"
         }
     ],
     "require": {
         "php": ">=8.1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.1"
     }
 }
